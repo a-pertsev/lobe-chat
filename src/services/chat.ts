@@ -692,7 +692,9 @@ class ChatService {
       throw AgentRuntimeError.createError(ChatErrorType.InvalidAccessCode);
     }
 
-    return agentRuntime.chat(data, { signal: params.signal });
+    const user = userStore.user?.fullName;
+
+    return agentRuntime.chat(data, { signal: params.signal, ...(user && { user }) });
   };
 
   /**

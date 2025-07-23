@@ -9,6 +9,7 @@ import { ChatErrorType } from '@/types/fetch';
 import { ChatStreamPayload } from '@/types/openai/chat';
 import { createErrorResponse } from '@/utils/errorResponse';
 import { getTracePayload } from '@/utils/trace';
+import { getUserAuth } from "@/utils/server/auth";
 
 export const runtime = 'edge';
 
@@ -36,8 +37,11 @@ export const POST = checkAuth(async (req: Request, { params, jwtPayload, createR
       traceOptions = createTraceOptions(data, { provider, trace: tracePayload });
     }
 
+    const { nextAuth } = await getUserAuth();
+    const user = nextAuth?.user?.name;
+
     return await agentRuntime.chat(data, {
-      user: jwtPayload.userId,
+      ...(user && { user }),
       ...traceOptions,
       signal: req.signal,
     });

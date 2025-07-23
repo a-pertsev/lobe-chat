@@ -77,7 +77,8 @@ export class LobeAnthropicAI implements LobeRuntimeAI {
           stream: true,
         },
         {
-          signal: options?.signal,
+          headers: options?.requestHeaders,
+          signal: options?.signal
         },
       );
 
