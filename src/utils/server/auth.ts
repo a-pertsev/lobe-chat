@@ -6,9 +6,11 @@ export const getUserAuth = async () => {
   if (enableClerk) {
     const { ClerkAuth } = await import('@/libs/clerk-auth');
 
-    const clerkAuth = new ClerkAuth();
+    const clerkAuthProvider = new ClerkAuth();
 
-    return await clerkAuth.getAuth();
+    const { clerkAuth, userId } =  await clerkAuthProvider.getAuth();
+
+    return { clerkAuth: clerkAuth, nextAuth: null, userId }
   }
 
   if (enableNextAuth) {
@@ -18,11 +20,11 @@ export const getUserAuth = async () => {
 
     const userId = session?.user.id;
 
-    return { nextAuth: session, userId };
+    return { clerkAuth: null, nextAuth: session, userId };
   }
 
   if (isDesktop) {
-    return { userId: DESKTOP_USER_ID };
+    return { clerkAuth: null, nextAuth: null, userId: DESKTOP_USER_ID };
   }
 
   throw new Error('Auth method is not enabled');

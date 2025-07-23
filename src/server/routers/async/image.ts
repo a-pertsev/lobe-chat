@@ -10,6 +10,7 @@ import { asyncAuthedProcedure, asyncRouter as router } from '@/libs/trpc/async';
 import { initAgentRuntimeWithUserPayload } from '@/server/modules/AgentRuntime';
 import { GenerationService } from '@/server/services/generation';
 import { AsyncTaskError, AsyncTaskErrorType, AsyncTaskStatus } from '@/types/asyncTask';
+import {getUserAuth} from "@/utils/server/auth";
 
 const log = debug('lobe-image:async');
 
@@ -135,10 +136,14 @@ export const imageRouter = router({
         checkAbortSignal(signal);
 
         log('Agent runtime initialized, calling createImage');
+
+        const { nextAuth } = await getUserAuth();
+        const user = nextAuth?.user?.name;
+
         const response = await agentRuntime.createImage({
           model,
           params: params as unknown as RuntimeImageGenParams,
-        });
+        }, { user });
 
         if (!response) {
           log('Create image response is empty');

@@ -18,6 +18,7 @@ import { initAgentRuntimeWithUserPayload } from '@/server/modules/AgentRuntime';
 import { ChunkService } from '@/server/services/chunk';
 import { AsyncTaskError } from '@/types/asyncTask';
 import { EvalEvaluationStatus } from '@/types/eval';
+import { getUserAuth } from "@/utils/server/auth";
 
 const ragEvalProcedure = asyncAuthedProcedure.use(async (opts) => {
   const { ctx } = opts;
@@ -99,13 +100,16 @@ export const ragEvalRouter = router({
 
         // 做一次生成 LLM 答案生成
         const { messages } = chainAnswerWithContext({ context, knowledge: [], question });
-
+        const { nextAuth } = await getUserAuth();
+        const user = nextAuth?.user?.name;
         const response = await agentRuntime.chat({
           messages: messages!,
           model: !!languageModel ? languageModel : DEFAULT_MODEL,
           responseMode: 'json',
           stream: false,
           temperature: 1,
+        }, {
+          ...(user && { user }),
         });
 
         const data = (await response.json()) as OpenAI.ChatCompletion;

@@ -6,6 +6,7 @@ import { TextToImagePayload } from '@/libs/model-runtime/types';
 import { initAgentRuntimeWithUserPayload } from '@/server/modules/AgentRuntime';
 import { ChatErrorType } from '@/types/fetch';
 import { createErrorResponse } from '@/utils/errorResponse';
+import { getUserAuth } from "@/utils/server/auth";
 
 export const runtime = 'edge';
 
@@ -58,7 +59,10 @@ export const POST = checkAuth(async (req: Request, { params, jwtPayload }) => {
 
     const data = (await req.json()) as TextToImagePayload;
 
-    const images = await agentRuntime.textToImage(data);
+    const { nextAuth } = await getUserAuth();
+    const user = nextAuth?.user?.name;
+
+    const images = await agentRuntime.textToImage(data, { user });
 
     return NextResponse.json(images);
   } catch (e) {

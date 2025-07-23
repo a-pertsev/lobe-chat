@@ -137,21 +137,24 @@ export interface ChatStreamPayload {
   truncation?: 'auto' | 'disabled';
 }
 
-export interface ChatMethodOptions {
+export interface RequestOptions {
+  /**
+   * send the request to the ai api endpoint
+   */
+  requestHeaders?: Record<string, any>;
+  /**
+   * userId for the chat completion
+   */
+  user?: string;
+}
+
+export interface ChatMethodOptions extends RequestOptions {
   callback?: ChatStreamCallbacks;
   /**
    * response headers
    */
   headers?: Record<string, any>;
-  /**
-   * send the request to the ai api endpoint
-   */
-  requestHeaders?: Record<string, any>;
   signal?: AbortSignal;
-  /**
-   * userId for the chat completion
-   */
-  user?: string;
 }
 
 export interface ChatCompletionFunctions {

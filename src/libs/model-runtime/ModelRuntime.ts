@@ -14,8 +14,8 @@ import {
   EmbeddingsOptions,
   EmbeddingsPayload,
   ModelRequestOptions,
-  PullModelParams,
-  TextToImagePayload,
+  PullModelParams, RequestOptions,
+  TextToImagePayload, TextToSpeechOptions,
   TextToSpeechPayload,
 } from './types';
 import { CreateImagePayload } from './types/image';
@@ -25,6 +25,8 @@ export interface AgentChatOptions {
   provider: string;
   trace?: TracePayload;
 }
+
+const USER_HEADER = 'x-lobe-user';
 
 class ModelRuntime {
   private _runtime: LobeRuntimeAI;
@@ -63,15 +65,15 @@ class ModelRuntime {
    * ```
    */
   async chat(payload: ChatStreamPayload, options?: ChatMethodOptions) {
-    return this._runtime.chat!(payload, options);
+    return this._runtime.chat!(payload, {...options, requestHeaders: {USER_HEADER: options?.user}});
   }
 
-  async textToImage(payload: TextToImagePayload) {
-    return this._runtime.textToImage?.(payload);
+  async textToImage(payload: TextToImagePayload, options?: RequestOptions) {
+    return this._runtime.textToImage?.(payload, {...options, requestHeaders: {USER_HEADER: options?.user}});
   }
 
-  async createImage(payload: CreateImagePayload) {
-    return this._runtime.createImage?.(payload);
+  async createImage(payload: CreateImagePayload, options?: RequestOptions) {
+    return this._runtime.createImage?.(payload, {...options, requestHeaders: {USER_HEADER: options?.user}});
   }
 
   async models() {
@@ -79,9 +81,16 @@ class ModelRuntime {
   }
 
   async embeddings(payload: EmbeddingsPayload, options?: EmbeddingsOptions) {
-    return this._runtime.embeddings?.(payload, options);
+    return this._runtime.embeddings?.(payload, {
+      ...options,
+      headers: {
+        ...options?.headers,
+        USER_HEADER: options?.user
+      }
+    });
   }
-  async textToSpeech(payload: TextToSpeechPayload, options?: EmbeddingsOptions) {
+
+  async textToSpeech(payload: TextToSpeechPayload, options?: TextToSpeechOptions) {
     return this._runtime.textToSpeech?.(payload, options);
   }
 
